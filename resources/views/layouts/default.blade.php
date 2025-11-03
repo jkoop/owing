@@ -39,7 +39,8 @@
 				<a href="/u">@t('Users')</a>
 			@endcan
 			@auth
-				<a class="ml-auto" href="/profile">@t('Profile')</a>
+				<a class="ml-auto" href="/export">@t('Export')</a>
+				<a href="/profile">@t('Profile')</a>
 				<a href="/logout">@t('Logout')</a>
 			@endauth
 		</nav>

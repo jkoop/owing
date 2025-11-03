@@ -9,7 +9,7 @@ Alpine.start()
 
 // prevent accidentally submitting a form more than once
 window.addEventListener("DOMContentLoaded", () => {
-	document.querySelectorAll("form").forEach((form) => {
+	document.querySelectorAll("form:not(.no-spinner)").forEach((form) => {
 		form.addEventListener("submit", (event) => {
 			event.target.querySelectorAll("textarea,input").forEach((input) => {
 				input.setAttribute("readonly", true)

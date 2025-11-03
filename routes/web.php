@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\PriceHistoryController;
 use App\Http\Controllers\ProfileController;
@@ -46,6 +47,9 @@ Route::middleware("auth")->group(function () {
 		->withTrashed();
 
 	Route::get("price-history", [PriceHistoryController::class, "view"]);
+
+	Route::get("export", [ExportController::class, "view"]);
+	Route::post("export", [ExportController::class, "export"]);
 
 	Route::get("profile", [ProfileController::class, "view"]);
 	Route::post("profile", [ProfileController::class, "update"]);
