@@ -61,7 +61,7 @@ final class ExportController extends Controller {
 			->with("userFrom", "userTo", "car")
 			->cursor()
 		as $transaction) {
-			$txnNumber = $transaction->getKey();
+			$txnNumber = "owing" . $transaction->getKey();
 			$date = $transaction->occurred_at->format("Y-m-d");
 			$payee = $transaction->otherUser->name;
 			$credit = $transaction->amount * ($transaction->from_user_id == Auth::id() ? 1 : -1);
