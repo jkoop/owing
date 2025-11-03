@@ -62,7 +62,7 @@ final class ExportController extends Controller {
 			->cursor()
 		as $transaction) {
 			$txnNumber = $transaction->getKey();
-			$date = $transaction->created_at->format("Y-m-d");
+			$date = $transaction->occurred_at->format("Y-m-d");
 			$payee = $transaction->otherUser->name;
 			$credit = $transaction->amount * ($transaction->from_user_id == Auth::id() ? 1 : -1);
 			$memo = $transaction->memo;
@@ -88,7 +88,7 @@ final class ExportController extends Controller {
 
 		return response(stream_get_contents($fp), headers: [
 			"Content-Type" => "text/csv",
-			"Content-Disposition" => 'attachment; filename="' . Str::slug("$appName $time $user") . '.csv"',
+			"Content-Disposition" => 'attachment; filename="' . Str::slug("$appName $time $user") . '.tsv"',
 		]);
 	}
 }
