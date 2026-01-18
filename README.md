@@ -1,3 +1,5 @@
-# [WIP] Owing
+# Owing
 
-Simple webapp to track IOUs among friends. Includes support for driving each other's cars!
+Simple webapp to track IOUs among friends. Features:
+- seperate friend groups
+- automatic pricing of driving cars
