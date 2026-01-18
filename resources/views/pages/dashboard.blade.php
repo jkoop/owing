@@ -5,7 +5,7 @@
 	@vite('resources/js/dashboard.js')
 	<livewire:owing-totals />
 
-	<h2>@t('Ledger') <a class="text-base decoration-dotted" href="https://github.com/jkoop/owing-laravel/wiki/Ledger"
+	<h2>@t('Ledger') <a class="text-base decoration-dotted" href="https://github.com/jkoop/owing/wiki/Ledger"
 			target="_blank">(?)</a></h2>
 
 	<nav class="mb-4 flex flex-row flex-wrap gap-4 bg-blue-100 p-2">
