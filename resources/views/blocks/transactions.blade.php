@@ -1,9 +1,5 @@
 @foreach ($transactions as $transaction)
-	<tr
-		@if ($transaction->occurred_at->timestamp > now()->timestamp)
-			class="future"
-		@endif
-	>
+	<tr @if ($transaction->occurred_at->timestamp > now()->timestamp) class="future" @endif>
 		<td><x-datetime :datetime="$transaction->occurred_at" /></td>
 		<td><x-user :user="$transaction->otherUser" /></td>
 		<td>

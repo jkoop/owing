@@ -32,35 +32,26 @@ final class ExportController extends Controller {
 	}
 
 	public function export(Request $request) {
-		$request->validate([ "user_id" => "required|integer" ]);
+		$request->validate(["user_id" => "required|integer"]);
 		$fp = fopen("php://memory", "r+");
 		fputcsv($fp, ["txn_number", "date", "payee", "credit", "memo"], "\t");
 
 		foreach (
-		$transactions = Transaction::where(function ($query): void {
-			$query
-				->where("from_user_id", Auth::id())
-				->orWhere("to_user_id", Auth::id());
-		})
-			->when(
-				$request->user_id != 0,
-				function ($query) use ($request): void {
+			$transactions = Transaction::where(function ($query): void {
+				$query->where("from_user_id", Auth::id())->orWhere("to_user_id", Auth::id());
+			})
+				->when($request->user_id != 0, function ($query) use ($request): void {
 					$query->where(function ($query) use ($request): void {
-						$query
-							->where("from_user_id", $request->user_id)
-							->orWhere("to_user_id", $request->user_id);
+						$query->where("from_user_id", $request->user_id)->orWhere("to_user_id", $request->user_id);
 					});
-				},
-			)
-			->when(
-				$request->has("deleted"),
-				function ($query): void {
+				})
+				->when($request->has("deleted"), function ($query): void {
 					$query->withTrashed();
-				},
-			)
-			->with("userFrom", "userTo", "car")
-			->cursor()
-		as $transaction) {
+				})
+				->with("userFrom", "userTo", "car")
+				->cursor()
+			as $transaction
+		) {
 			$txnNumber = "owing" . $transaction->getKey();
 			$date = $transaction->occurred_at->format("Y-m-d");
 			$payee = $transaction->otherUser->name;
@@ -77,7 +68,7 @@ final class ExportController extends Controller {
 				$credit = 0;
 			}
 
-			fputcsv($fp, [ $txnNumber, $date, $payee, $credit, $memo ], "\t");
+			fputcsv($fp, [$txnNumber, $date, $payee, $credit, $memo], "\t");
 		}
 
 		rewind($fp);
@@ -86,9 +77,12 @@ final class ExportController extends Controller {
 		$time = now()->timestamp;
 		$user = User::find($request->user_id)?->name ?? "All";
 
-		return response(stream_get_contents($fp), headers: [
-			"Content-Type" => "text/csv",
-			"Content-Disposition" => 'attachment; filename="' . Str::slug("$appName $time $user") . '.tsv"',
-		]);
+		return response(
+			stream_get_contents($fp),
+			headers: [
+				"Content-Type" => "text/csv",
+				"Content-Disposition" => 'attachment; filename="' . Str::slug("$appName $time $user") . '.tsv"',
+			],
+		);
 	}
 }

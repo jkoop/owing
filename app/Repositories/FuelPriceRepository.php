@@ -45,47 +45,87 @@ class FuelPriceRepository {
 	}
 
 	public static function refreshFuelPrices(): void {
-		foreach (self::getTypes() as $type) {
-			$price = self::getFreshFuelPrice($type);
+		exec(
+			<<<'SHELL'
+			cat file | grep -o '"prices":\s*\[[^]]*]'
+			SHELL
+			,
+			$data,
+		);
 
-			if ($price != null) {
-				FuelPrice::create([
-					"price" => $price,
-					"fuel_type" => $type,
-				]);
+		$data = $data[0];
+		$data = "{" . $data . "}";
+		$data = json_decode($data);
 
-				Transaction::with("car")
-					->where("kind", "drivetrak")
-					->where("occurred_at", ">", now()->timestamp)
-					->get()
-					->map(fn($transaction) => $transaction->recalculate());
+		//  "prices": [
+		//    {
+		//      "__typename": "PriceReport",
+		//      "cash": null,
+		//      "credit": {
+		//        "__typename": "FuelPrice",
+		//        "nickname": "aikitazz",
+		//        "postedTime": "2026-01-16T13:10:28.434Z",
+		//        "price": 123.9,
+		//        "formattedPrice": "123.9¢"
+		//      },
+		//      "fuelProduct": "regular_gas",
+		//      "longName": "Regular"
+		//    },
+		//    {
+		//      "__typename": "PriceReport",
+		//      "cash": null,
+		//      "credit": {
+		//        "__typename": "FuelPrice",
+		//        "nickname": "Buddy_5c3e4mj3",
+		//        "postedTime": "2026-01-16T02:35:52.599Z",
+		//        "price": 143.9,
+		//        "formattedPrice": "143.9¢"
+		//      },
+		//      "fuelProduct": "premium_gas",
+		//      "longName": "Premium"
+		//    },
+		//    {
+		//      "__typename": "PriceReport",
+		//      "cash": null,
+		//      "credit": {
+		//        "__typename": "FuelPrice",
+		//        "nickname": "aikitazz",
+		//        "postedTime": "2026-01-16T13:10:28.441Z",
+		//        "price": 146.9,
+		//        "formattedPrice": "146.9¢"
+		//      },
+		//      "fuelProduct": "diesel",
+		//      "longName": "Diesel"
+		//    }
+		//  ]
+
+		foreach ($data->prices as $fuel) {
+			$price = $fuel->credit ?? $fuel->cash;
+			$price = $price->price; // cents
+			$price /= 100;
+
+			$type = $fuel->fuelProduct; // regular_gas, premium_gas, diesel
+			$type = match ($type) {
+				"regular_gas" => "gasoline",
+				"diesel" => "diesel",
+				default => null,
+			};
+			if ($type == null) {
+				continue;
 			}
+
+			FuelPrice::create([
+				"price" => $price,
+				"fuel_type" => $type,
+			]);
+
+			Transaction::with("car")
+				->where("kind", "drivetrak")
+				->where("occurred_at", ">", now()->timestamp)
+				->get()
+				->map(fn($transaction) => $transaction->recalculate());
 		}
 
 		self::$prices = [];
-	}
-
-	private static function getFreshFuelPrice(string $type): ?float {
-		$type = ["gasoline" => 1, "diesel" => 4][$type];
-
-		exec(
-			'curl "https://www.gasbuddy.com/graphql" -s -H "content-type: application/json" --data-raw \'{"operationName":"LocationByArea","variables":{"area":"steinbach","countryCode":"CA","fuel":' .
-				$type .
-				',"regionCode":"MB"},"query":"query LocationByArea($area: String, $countryCode: String, $criteria: Criteria, $fuel: Int, $regionCode: String) { locationByArea( area: $area countryCode: $countryCode criteria: $criteria regionCode: $regionCode ) { stations(fuel: $fuel) { results { prices(fuel: $fuel) { cash { price } credit { price } fuelProduct } } } }}"}\'',
-			$price,
-		);
-
-		$price = json_decode($price[0] ?? "null");
-		$price = $price?->data->locationByArea->stations->results;
-		if ($price == null) {
-			return null;
-		}
-
-		$price = array_map(function ($result) {
-			return $result->prices[0]->credit->price;
-		}, $price);
-		$price = max(...$price);
-
-		return round($price / 100, 3);
 	}
 }
