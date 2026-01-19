@@ -27,26 +27,23 @@
 			</tr>
 			<tr>
 				<td>@t('Locale')</td>
-				<td><x-select name="locale" :selected="$user->locale ?? 'en_CA'">
+				<td colspan="2"><x-select name="locale" :selected="$user->locale ?? 'en_CA'">
 						@foreach (['en_CA', 'de'] as $locale)
 							<x-select.option :value="$locale">@t('this_locale_name', locale: $locale)</x-select.option>
 						@endforeach
 					</x-select></td>
-				<td></td>
 			</tr>
 
 			{{-- if we're admin and this is not the profile page --}}
 			@if (Auth::user()->is_admin and !$profile)
 				<tr>
 					<td></td>
-					<td><label><x-input name="must_change_password" type="checkbox" :checked="$user->must_change_password" /> @t('Must change password')</label>
+					<td colspan="2"><label><x-input name="must_change_password" type="checkbox" :checked="$user->must_change_password" /> @t('Must change password')</label>
 					</td>
-					<td></td>
 				</tr>
 				<tr>
 					<td></td>
-					<td><label><x-input name="is_admin" type="checkbox" :checked="$user->is_admin" /> @t('Is admin')</label></td>
-					<td></td>
+					<td colspan="2"><label><x-input name="is_admin" type="checkbox" :checked="$user->is_admin" /> @t('Is admin')</label></td>
 				</tr>
 			@endif
 		</table>
