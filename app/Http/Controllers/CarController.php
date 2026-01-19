@@ -13,14 +13,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 final class CarController extends Controller {
-	public function index(Request $request) {
-		if ($request->has("deleted")) {
-			return view("pages.cars", ["cars" => Car::withTrashed()->get()]);
-		}
-
-		return view("pages.cars", ["cars" => Car::all()]);
-	}
-
 	public function new() {
 		return view("pages.car", ["car" => new Car()]);
 	}

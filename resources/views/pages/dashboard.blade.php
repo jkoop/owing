@@ -8,36 +8,37 @@
 	<h2>@t('Ledger') <a class="text-base decoration-dotted" href="https://github.com/jkoop/owing/wiki/Ledger"
 			target="_blank">(?)</a></h2>
 
-	<nav class="mb-4 flex flex-row flex-wrap gap-4 bg-blue-100 p-2">
-		<label>
-			<input name="deleted" type="checkbox" onchange="resetTable()" />
-			@t('Show deleted')
-		</label>
-		<label>
-			@t('Sort by')
-			<select name="order_by" onchange="resetTable()">
-				<option value="occurred_at" selected>@t('Occurred at')</option>
-				<option value="updated_at">@t('Updated at')</option>
-			</select>
-		</label>
-		<label>
-			@t('Filter by user')
-			<select name="user_id" onchange="resetTable()">
-				<option selected></option>
-				@foreach ($users as $user)
-					<option value="{{ $user->id }}">{{ $user->name }}</option>
-				@endforeach
-			</select>
-		</label>
-		<label>
-			@t('Filter by memo')
-			<input name="memo" oninput="resetTable()" />
-		</label>
-		<a class="ml-auto" href="/t/new">@t('New')</a>
-	</nav>
-
 	<table>
 		<thead>
+			<tr><th colspan="6" class="text-normal">
+					<div class="mb-4 flex flex-row flex-wrap gap-4 bg-blue-100 p-2">
+						<label>
+							<input name="deleted" type="checkbox" onchange="resetTable()" />
+							@t('Show deleted')
+						</label>
+						<label>
+							@t('Sort by')
+							<select name="order_by" onchange="resetTable()">
+								<option value="occurred_at" selected>@t('Occurred at')</option>
+								<option value="updated_at">@t('Updated at')</option>
+							</select>
+						</label>
+						<label>
+							@t('Filter by user')
+							<select name="user_id" onchange="resetTable()">
+								<option selected></option>
+								@foreach ($users as $user)
+									<option value="{{ $user->id }}">{{ $user->name }}</option>
+								@endforeach
+							</select>
+						</label>
+						<label>
+							@t('Filter by memo')
+							<input name="memo" oninput="resetTable()" />
+						</label>
+						<a class="ml-auto" href="/t/new">@t('New')</a>
+					</div>
+				</th></tr>
 			<tr>
 				<th>@t('Occurred at')</th>
 				<th>@t('User')</th>

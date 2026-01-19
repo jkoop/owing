@@ -33,14 +33,9 @@
 		<nav>
 			@auth
 				<a href="/">@t('Dashboard')</a>
-				<a href="/c">@t('Cars')</a>
-			@endauth
-			@can('isAdmin')
-				<a href="/u">@t('Users')</a>
-			@endcan
-			@auth
-				<a class="ml-auto" href="/export">@t('Export')</a>
-				<a href="/profile">@t('Profile')</a>
+				<a href="/system">@t('System')</a>
+				<a href="/export">@t('Export')</a>
+				<a class="ml-auto" href="/profile">@t('Profile')</a>
 				<a href="/logout">@t('Logout')</a>
 			@endauth
 		</nav>

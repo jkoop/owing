@@ -8,14 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
 final class UserController extends Controller {
-	public function index(Request $request) {
-		if ($request->has("deleted")) {
-			return view("pages.users", ["users" => User::withTrashed()->get()]);
-		}
-
-		return view("pages.users", ["users" => User::all()]);
-	}
-
 	public function new() {
 		return view("pages.user", ["user" => new User(), "profile" => false]);
 	}
