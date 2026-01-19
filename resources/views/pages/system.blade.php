@@ -7,7 +7,7 @@
 	<table>
 		<thead>
 			<tr>
-				<th class="text-normal" colspan="{{ request()->has('deleted') ? 5 : 4 }}">
+				<th class="font-normal" colspan="{{ request()->has('deleted') ? 5 : 4 }}">
 					<div class="mb-4 flex flex-row flex-wrap gap-4 bg-blue-100 p-2">
 						@if (request()->has('deleted'))
 							<a href="/system#cars">@t('Hide deleted')</a>
@@ -54,7 +54,7 @@
 		<table>
 			<thead>
 				<tr>
-					<th class="text-normal" colspan="{{ request()->has('deleted') ? 6 : 5 }}">
+					<th class="font-normal" colspan="{{ request()->has('deleted') ? 6 : 5 }}">
 						<div class="mb-4 flex flex-row flex-wrap gap-4 bg-blue-100 p-2">
 							@if (request()->has('deleted'))
 								<a href="/system#users">@t('Hide deleted')</a>

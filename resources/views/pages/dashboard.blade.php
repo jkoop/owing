@@ -11,7 +11,7 @@
 	<table>
 		<thead>
 			<tr>
-				<th class="text-normal" colspan="6">
+				<th class="font-normal" colspan="6">
 					<div class="mb-4 flex flex-row flex-wrap gap-4 bg-blue-100 p-2">
 						<label>
 							<input name="deleted" type="checkbox" onchange="resetTable()" />
