@@ -38,12 +38,14 @@
 			@if (Auth::user()->is_admin and !$profile)
 				<tr>
 					<td></td>
-					<td colspan="2"><label><x-input name="must_change_password" type="checkbox" :checked="$user->must_change_password" /> @t('Must change password')</label>
+					<td colspan="2"><label><x-input name="must_change_password" type="checkbox" :checked="$user->must_change_password" />
+							@t('Must change password')</label>
 					</td>
 				</tr>
 				<tr>
 					<td></td>
-					<td colspan="2"><label><x-input name="is_admin" type="checkbox" :checked="$user->is_admin" /> @t('Is admin')</label></td>
+					<td colspan="2"><label><x-input name="is_admin" type="checkbox" :checked="$user->is_admin" /> @t('Is admin')</label>
+					</td>
 				</tr>
 			@endif
 		</table>

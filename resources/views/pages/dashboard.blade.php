@@ -10,7 +10,8 @@
 
 	<table>
 		<thead>
-			<tr><th colspan="6" class="text-normal">
+			<tr>
+				<th class="text-normal" colspan="6">
 					<div class="mb-4 flex flex-row flex-wrap gap-4 bg-blue-100 p-2">
 						<label>
 							<input name="deleted" type="checkbox" onchange="resetTable()" />
@@ -38,7 +39,8 @@
 						</label>
 						<a class="ml-auto" href="/t/new">@t('New')</a>
 					</div>
-				</th></tr>
+				</th>
+			</tr>
 			<tr>
 				<th>@t('Occurred at')</th>
 				<th>@t('User')</th>
