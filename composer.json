@@ -17,6 +17,7 @@
 	},
 	"require-dev": {
 		"barryvdh/laravel-debugbar": "^3.9",
+		"laravel/boost": "^2.0",
 		"laravel/sail": "^1.18"
 	},
 	"autoload": {
