@@ -47,7 +47,7 @@ class FuelPriceRepository {
 	public static function refreshFuelPrices(): void {
 		exec(
 			<<<'SHELL'
-			cat file | grep -o '"prices":\s*\[[^]]*]'
+			curl -sq https://www.gasbuddy.com/station/50979 | grep -o '"prices":\s*\[[^]]*]'
 			SHELL
 			,
 			$data,
