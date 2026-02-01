@@ -7,6 +7,7 @@ use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
@@ -26,6 +27,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
 	public function changes(): HasMany {
 		return $this->hasMany(Change::class, "user_id");
+	}
+
+	public function friendCircles(): BelongsToMany {
+		return $this->belongsToMany(FriendCircle::class);
 	}
 
 	public function transactions(): Builder {
@@ -72,5 +77,38 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 			} // avoids returning negative zero
 			return $owing;
 		})();
+	}
+
+	/**
+	 * Get users that this user can see (share a friend circle with, or owe each other money)
+	 */
+	public function getVisibleUsers(): Builder {
+		// Get users from shared friend circles
+		$friendCircleUserIds = $this->friendCircles()
+			->with("users")
+			->get()
+			->flatMap(fn($circle) => $circle->users->pluck("id"))
+			->unique()
+			->filter(fn($id) => $id != $this->id)
+			->toArray();
+
+		// Also include users that owe each other money (have transactions together)
+		$transactionUserIds = Transaction::where(function ($query) {
+			$query->where("from_user_id", $this->id)->orWhere("to_user_id", $this->id);
+		})
+			->select("from_user_id", "to_user_id")
+			->get()
+			->flatMap(fn($transaction) => [$transaction->from_user_id, $transaction->to_user_id])
+			->unique()
+			->filter(fn($id) => $id != $this->id)
+			->toArray();
+
+		$allVisibleIds = array_unique(array_merge($friendCircleUserIds, $transactionUserIds));
+
+		if (empty($allVisibleIds)) {
+			return User::whereRaw("1 = 0"); // Return empty result set
+		}
+
+		return User::whereIn("id", $allVisibleIds);
 	}
 }

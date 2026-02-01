@@ -98,4 +98,70 @@
 		</table>
 	@endcan
 
+	<h2><a name="friend-circles"></a> Friend Circles</h2>
+
+	<table>
+		<thead>
+			<tr>
+				<th class="font-normal" colspan="{{ request()->has('deleted') ? 3 : 2 }}">
+					@can('isAdmin')
+						<div class="mb-4 flex flex-row flex-wrap gap-4 bg-blue-100 p-2">
+							@if (request()->has('deleted'))
+								<a href="/system#friend-circles">@t('Hide deleted')</a>
+							@else
+								<a href="/system?deleted#friend-circles">@t('Show deleted')</a>
+							@endif
+							<a class="ml-auto" href="/fc/new">@t('New')</a>
+						</div>
+					@else
+						@if (request()->has('deleted'))
+							<div class="mb-4 flex flex-row flex-wrap gap-4 bg-blue-100 p-2">
+								<a href="/system#friend-circles">@t('Hide deleted')</a>
+							</div>
+						@endif
+					@endcan
+				</th>
+			</tr>
+			<tr>
+				<th>@t('Name')</th>
+				<th>@t('Users')</th>
+				@if (request()->has('deleted'))
+					<th>@t('Deleted')</th>
+				@endif
+			</tr>
+		</thead>
+		<tbody>
+			@foreach ($friendCircles->sortBy('name') as $friendCircle)
+				<tr>
+					<td>
+						@can('isAdmin')
+							<a href="/fc/{{ $friendCircle->id }}">{{ $friendCircle->name }}</a>
+						@else
+							{{ $friendCircle->name }}
+						@endcan
+					</td>
+					<td>
+						@foreach ($friendCircle->users->sortBy('name') as $user)
+							<x-user :user="$user" />
+							@if (!$loop->last)
+								,
+							@endif
+						@endforeach
+						@if ($friendCircle->users->count() < 1)
+							<i>@t('no users')</i>
+						@endif
+					</td>
+					@if (request()->has('deleted'))
+						<td><x-datetime :datetime="$friendCircle->deleted_at" relative /></td>
+					@endif
+				</tr>
+			@endforeach
+			@if ($friendCircles->count() < 1)
+				<tr>
+					<td colspan="{{ request()->has('deleted') ? 3 : 2 }}"><i>@t('no friend circles')</i></td>
+				</tr>
+			@endif
+		</tbody>
+	</table>
+
 @endsection

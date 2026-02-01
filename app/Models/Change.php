@@ -23,8 +23,13 @@ class Change extends Model {
 		return $this->belongsTo(User::class, "user_id")->withTrashed();
 	}
 
+	public function friendCircle(): BelongsTo {
+		return $this->belongsTo(FriendCircle::class, "friend_circle_id")->withTrashed();
+	}
+
 	public function getTargetAttribute() {
-		return $this->transaction ?? ($this->user ?? throw new ImpossibleStateException());
+		return $this->transaction ??
+			($this->car ?? ($this->friendCircle ?? ($this->user ?? throw new ImpossibleStateException())));
 	}
 
 	/**
@@ -51,6 +56,10 @@ class Change extends Model {
 				break;
 			case User::class:
 				$details["user_id"] = $target->id;
+				self::create($details);
+				break;
+			case FriendCircle::class:
+				$details["friend_circle_id"] = $target->id;
 				self::create($details);
 				break;
 			default:

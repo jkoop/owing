@@ -5,7 +5,7 @@ use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExportController;
-use App\Http\Controllers\ImportController;
+use App\Http\Controllers\FriendCircleController;
 use App\Http\Controllers\PriceHistoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SystemController;
@@ -32,6 +32,11 @@ Route::middleware("auth")->group(function () {
 		Route::post("u/{user}", [UserController::class, "update"])->withTrashed();
 
 		Route::post("u/{user}/impersonate", [AuthenticationController::class, "impersonate"]);
+
+		Route::get("fc/new", [FriendCircleController::class, "new"]);
+		Route::post("fc/new", [FriendCircleController::class, "create"]);
+		Route::get("fc/{friendCircle}", [FriendCircleController::class, "view"])->withTrashed();
+		Route::post("fc/{friendCircle}", [FriendCircleController::class, "update"])->withTrashed();
 	});
 
 	Route::get("t", [TransactionController::class, "index"]); // the endpoint for the infinite scrolling dashboard

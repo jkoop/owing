@@ -74,11 +74,16 @@ final class TransactionController extends Controller {
 	}
 
 	public function view(Transaction $transaction) {
+		$friendCircleUserIds = Auth::user()->getVisibleUsers()->pluck("id")->toArray();
+
 		$users = User::withTrashed()
 			->whereNot("id", Auth::id())
 			->orderBy("name")
 			->get()
-			->filter(fn($a) => $a->deleted_at == null or $a->getOwing(Auth::user()));
+			->filter(
+				fn($a) => $a->deleted_at == null && in_array($a->id, $friendCircleUserIds) or
+					$a->getOwing(Auth::user()),
+			);
 
 		return view("pages.transaction", compact("transaction", "users"));
 	}
