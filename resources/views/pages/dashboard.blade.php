@@ -25,6 +25,15 @@
 							</select>
 						</label>
 						<label>
+							@t('Filter by car')
+							<select name="car_id" onchange="resetTable()">
+								<option selected></option>
+								@foreach ($cars as $car)
+									<option value="{{ $car->id }}">{{ $car->name }}</option>
+								@endforeach
+							</select>
+						</label>
+						<label>
 							@t('Filter by user')
 							<select name="user_id" onchange="resetTable()">
 								<option selected></option>

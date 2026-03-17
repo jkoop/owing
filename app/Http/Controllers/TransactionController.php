@@ -17,6 +17,7 @@ final class TransactionController extends Controller {
 	public function index(Request $request) {
 		$request->validate([
 			"offset" => "required|int|min:0",
+			"car_id" => "nullable|int|min:1",
 			"user_id" => "nullable|int|min:1",
 			"order_by" => "required|in:occurred_at,updated_at",
 			"memo" => "nullable|string",
@@ -32,6 +33,9 @@ final class TransactionController extends Controller {
 
 		if ($request->has("deleted")) {
 			$transactions = $transactions->withTrashed();
+		}
+		if ($request->car_id != null) {
+			$transactions = $transactions->where("car_id", $request->car_id);
 		}
 		if ($request->user_id != null) {
 			$transactions = $transactions->where(function ($query) use ($request) {
