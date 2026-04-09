@@ -47,57 +47,54 @@ class FuelPriceRepository {
 	public static function refreshFuelPrices(): void {
 		exec(
 			<<<'SHELL'
-			curl -sq https://www.gasbuddy.com/station/50979 | grep -o '"prices":\s*\[[^]]*]'
+			curl 'https://www.gasbuddy.com/graphql' -H 'apollo-require-preflight: true' -H 'content-type: application/json' -H 'gbcsrf: 1.AhjjyJxIObKWI0Vv' -H 'origin: https://www.gasbuddy.com' -H 'referer: https://www.gasbuddy.com/station/50979' --data-raw '{"operationName":"GetStationPrices","variables":{"id":"50979"},"query":"query GetStationPrices($id: ID\u0021) { station(id: $id) { id prices { cash { price } credit { price } fuelProduct } } }"}'
 			SHELL
 			,
 			$data,
 		);
 
-		$data = $data[0];
-		$data = "{" . $data . "}";
+		$data = implode("\n", $data);
 		$data = json_decode($data);
 
-		//  "prices": [
-		//    {
-		//      "__typename": "PriceReport",
-		//      "cash": null,
-		//      "credit": {
-		//        "__typename": "FuelPrice",
-		//        "nickname": "aikitazz",
-		//        "postedTime": "2026-01-16T13:10:28.434Z",
-		//        "price": 123.9,
-		//        "formattedPrice": "123.9¢"
-		//      },
-		//      "fuelProduct": "regular_gas",
-		//      "longName": "Regular"
-		//    },
-		//    {
-		//      "__typename": "PriceReport",
-		//      "cash": null,
-		//      "credit": {
-		//        "__typename": "FuelPrice",
-		//        "nickname": "Buddy_5c3e4mj3",
-		//        "postedTime": "2026-01-16T02:35:52.599Z",
-		//        "price": 143.9,
-		//        "formattedPrice": "143.9¢"
-		//      },
-		//      "fuelProduct": "premium_gas",
-		//      "longName": "Premium"
-		//    },
-		//    {
-		//      "__typename": "PriceReport",
-		//      "cash": null,
-		//      "credit": {
-		//        "__typename": "FuelPrice",
-		//        "nickname": "aikitazz",
-		//        "postedTime": "2026-01-16T13:10:28.441Z",
-		//        "price": 146.9,
-		//        "formattedPrice": "146.9¢"
-		//      },
-		//      "fuelProduct": "diesel",
-		//      "longName": "Diesel"
-		//    }
-		//  ]
+		// {
+		//   "data": {
+		//     "station": {
+		//       "id": "50979",
+		//       "prices": [
+		//         {
+		//           "cash": null,
+		//           "credit": {
+		//             "price": 169.9
+		//           },
+		//           "fuelProduct": "regular_gas"
+		//         },
+		//         {
+		//           "cash": null,
+		//           "credit": {
+		//             "price": 184.9
+		//           },
+		//           "fuelProduct": "midgrade_gas"
+		//         },
+		//         {
+		//           "cash": null,
+		//           "credit": {
+		//             "price": 194.9
+		//           },
+		//           "fuelProduct": "premium_gas"
+		//         },
+		//         {
+		//           "cash": null,
+		//           "credit": {
+		//             "price": 285.9
+		//           },
+		//           "fuelProduct": "diesel"
+		//         }
+		//       ]
+		//     }
+		//   }
+		// }
+
+		$data = $data->data->station;
 
 		foreach ($data->prices as $fuel) {
 			$price = $fuel->credit ?? $fuel->cash;
