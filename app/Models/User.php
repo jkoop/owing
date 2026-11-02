@@ -40,11 +40,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	}
 
 	public function transactionsFrom(): HasMany {
-		return $this->hasMany(Transaction::class, "from_user_id")->where("occurred_at", "<=", now()->timestamp);
+		return $this->hasMany(Transaction::class, "from_user_id")->where("occurred_at", "<=", now("America/Winnipeg")->toDateString());
 	}
 
 	public function transactionsTo(): HasMany {
-		return $this->hasMany(Transaction::class, "to_user_id")->where("occurred_at", "<=", now()->timestamp);
+		return $this->hasMany(Transaction::class, "to_user_id")->where("occurred_at", "<=", now("America/Winnipeg")->toDateString());
 	}
 
 	public function getBalanceAttribute(User|null $otherGuy = null): float {

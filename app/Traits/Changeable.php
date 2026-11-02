@@ -21,7 +21,8 @@ trait Changeable {
 				unset($data[$attributeNotShown]);
 			}
 			foreach ($data as $key => &$value) {
-				if (($model->getCasts()[$key] ?? null) == "datetime" and $value != null) {
+				$cast = $model->getCasts()[$key] ?? null;
+				if (in_array($cast, ["datetime", "date"]) and $value != null) {
 					$value = date("c", strtotime($value));
 				}
 			}
@@ -44,8 +45,8 @@ trait Changeable {
 					if ($newValue == $model->getOriginal($key)) {
 						continue;
 					}
-					if (($model->getCasts()[$key] ?? null) == "datetime" and $newValue != null) {
-						$newValue = date("c", $newValue);
+					if (in_array($model->getCasts()[$key] ?? null, ["datetime", "date"]) and $newValue != null) {
+						$newValue = date("c", is_numeric($newValue) ? (int) $newValue : strtotime($newValue));
 					} else {
 						$newValue = json_encode($newValue);
 					}

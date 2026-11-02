@@ -56,7 +56,7 @@ final class CarController extends Controller {
 
 			if ($car->id) {
 				Transaction::with("car")
-					->where("occurred_at", ">", now()->timestamp)
+					->where("occurred_at", ">", now("America/Winnipeg")->toDateString())
 					->where("car_id", $car->id)
 					->get()
 					->map(fn($transaction) => $transaction->recalculate());
@@ -72,7 +72,7 @@ final class CarController extends Controller {
 
 			if ($car->id) {
 				Transaction::with("car")
-					->where("occurred_at", ">", now()->timestamp)
+					->where("occurred_at", ">", now("America/Winnipeg")->toDateString())
 					->where("car_id", $car->id)
 					->get()
 					->map(fn($transaction) => $transaction->recalculate());

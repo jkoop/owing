@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Repositories\FuelPriceRepository;
 use App\Traits\Changeable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,8 +15,15 @@ class Transaction extends Model {
 
 	protected $casts = [
 		"is_confirmed" => "boolean",
-		"occurred_at" => "datetime",
+		"occurred_at" => "date",
 	];
+
+	/**
+	 * Store as `Y-m-d` rather than the base model's Unix timestamp format, so `occurred_at` compares correctly against date strings.
+	 */
+	protected function occurredAt(): Attribute {
+		return Attribute::make(set: fn($value) => $value == null ? null : $this->asDate($value)->toDateString());
+	}
 
 	public function changes(): HasMany {
 		return $this->hasMany(Change::class, "transaction_id");

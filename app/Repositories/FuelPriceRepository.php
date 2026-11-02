@@ -35,8 +35,9 @@ class FuelPriceRepository {
 			throw new \InvalidArgumentException('Invalid $type');
 		}
 		if (!$time instanceof Carbon) {
-			$time = Carbon::parse(Carbon::parse($time)->format("Y-m-d") . " 12:00:00 America/Winnipeg");
+			$time = Carbon::parse($time);
 		}
+		$time = Carbon::parse($time->format("Y-m-d") . " 12:00:00 America/Winnipeg");
 
 		return FuelPrice::where("fuel_type", $type)
 			->where("created_at", "<", $time->timestamp)
@@ -118,7 +119,7 @@ class FuelPriceRepository {
 
 			Transaction::with("car")
 				->where("kind", "drivetrak")
-				->where("occurred_at", ">", now()->timestamp)
+				->where("occurred_at", ">", now("America/Winnipeg")->toDateString())
 				->get()
 				->map(fn($transaction) => $transaction->recalculate());
 		}
