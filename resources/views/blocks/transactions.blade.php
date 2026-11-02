@@ -1,6 +1,6 @@
 @foreach ($transactions as $transaction)
 	<tr @if ($transaction->occurred_at->format("Y-m-d") > now("America/Winnipeg")->format("Y-m-d")) class="future" @endif>
-		<td><x-datetime :datetime="$transaction->occurred_at" /></td>
+		<td><time datetime="{{ $transaction->occurred_at->toDateString() }}" title="{{ $transaction->occurred_at->format('l, F j, Y') }}">{{ $transaction->occurred_at->format("D, M j, 'y") }}</time></td>
 		<td><x-user :user="$transaction->otherUser" /></td>
 		<td>
 			@if ($transaction->deleted_at !== null)
