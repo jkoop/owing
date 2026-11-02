@@ -14,7 +14,6 @@ class Transaction extends Model {
 	use Changeable, SoftDeletes;
 
 	protected $casts = [
-		"is_confirmed" => "boolean",
 		"occurred_at" => "date",
 	];
 

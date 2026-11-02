@@ -109,7 +109,6 @@ final class ImportController extends Controller {
 						"to_user_id" => (int) $row[2],
 						"from_user_id" => (int) $fromUserId,
 						"occurred_at" => date("Y-m-d", (int) $row[4]),
-						"is_confirmed" => $row[5] != "",
 						"created_at" => (int) $row[9],
 						"amount" => round((float) $row[10], 2),
 					]);
@@ -125,7 +124,6 @@ final class ImportController extends Controller {
 						"to_user_id" => (int) $row[2],
 						"from_user_id" => $car->owner_id,
 						"occurred_at" => date("Y-m-d", $date),
-						"is_confirmed" => true,
 						"car_id" => $car->id,
 						"distance" => (float) $row[7],
 						"ratio" => (float) eval("return " . $row[8] . ";"),

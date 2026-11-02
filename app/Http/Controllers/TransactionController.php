@@ -186,7 +186,6 @@ final class TransactionController extends Controller {
 			"from_user_id" => $fromUser->id,
 			"to_user_id" => $toUser->id,
 			"amount" => $amount,
-			"is_confirmed" => $fromUser->id == Auth::id(),
 			"car_id" => $car?->id,
 			"distance" => $distance,
 			"ratio" => $ratio,
