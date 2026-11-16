@@ -8,6 +8,9 @@ use App\Models\Transaction;
 use Carbon\Carbon;
 
 class FuelPriceRepository {
+	/** GasBuddy station IDs whose posted prices are averaged. */
+	private const STATION_IDS = ["50979", "19217", "22797"];
+
 	private static $prices = [];
 
 	private static function getTypes(): array {
@@ -46,20 +49,34 @@ class FuelPriceRepository {
 	}
 
 	public static function refreshFuelPrices(): void {
+		$stationQueries = array_map(
+			fn($stationId) => "station{$stationId}: station(id: \"{$stationId}\") { ...prices }",
+			self::STATION_IDS,
+		);
+		$body = json_encode([
+			"operationName" => "GetStationPrices",
+			"query" =>
+				"query GetStationPrices { " .
+				implode(" ", $stationQueries) .
+				" } fragment prices on Station { id prices { cash { price } credit { price } fuelProduct } }",
+		]);
+		$referer = "https://www.gasbuddy.com/station/" . self::STATION_IDS[0];
+
 		exec(
-			<<<'SHELL'
-			curl 'https://www.gasbuddy.com/graphql' -H 'apollo-require-preflight: true' -H 'content-type: application/json' -H 'gbcsrf: 1.AhjjyJxIObKWI0Vv' -H 'origin: https://www.gasbuddy.com' -H 'referer: https://www.gasbuddy.com/station/50979' --data-raw '{"operationName":"GetStationPrices","variables":{"id":"50979"},"query":"query GetStationPrices($id: ID\u0021) { station(id: $id) { id prices { cash { price } credit { price } fuelProduct } } }"}'
-			SHELL
-			,
+			"curl 'https://www.gasbuddy.com/graphql' -H 'apollo-require-preflight: true' -H 'content-type: application/json' -H 'gbcsrf: 1.AhjjyJxIObKWI0Vv' -H 'origin: https://www.gasbuddy.com' -H " .
+				escapeshellarg("referer: {$referer}") .
+				" --data-raw " .
+				escapeshellarg($body),
 			$data,
 		);
 
 		$data = implode("\n", $data);
 		$data = json_decode($data);
 
+		// Unposted prices come back as "price": 0. Each station has the same shape as station50979.
 		// {
 		//   "data": {
-		//     "station": {
+		//     "station50979": {
 		//       "id": "50979",
 		//       "prices": [
 		//         {
@@ -95,22 +112,38 @@ class FuelPriceRepository {
 		//   }
 		// }
 
-		$data = $data->data->station;
+		$stations = array_values((array) $data->data);
+		$prices = [];
 
-		foreach ($data->prices as $fuel) {
-			$price = $fuel->credit ?? $fuel->cash;
-			$price = $price->price; // cents
-			$price /= 100;
+		foreach ($stations as $station) {
+			foreach ($station->prices as $fuel) {
+				$type = $fuel->fuelProduct; // regular_gas, premium_gas, diesel
+				$type = match ($type) {
+					"regular_gas" => "gasoline",
+					"diesel" => "diesel",
+					default => null,
+				};
+				if ($type == null) {
+					continue;
+				}
 
-			$type = $fuel->fuelProduct; // regular_gas, premium_gas, diesel
-			$type = match ($type) {
-				"regular_gas" => "gasoline",
-				"diesel" => "diesel",
-				default => null,
-			};
-			if ($type == null) {
-				continue;
+				$price = $fuel->credit ?? $fuel->cash;
+				$price = $price?->price ?? 0; // cents
+				if ($price > 0) {
+					$prices[$type][] = $price / 100;
+				}
 			}
+		}
+
+		foreach (["gasoline", "diesel"] as $type) {
+			if (!isset($prices[$type])) {
+				$stationIds = implode(", ", array_map(fn($station) => $station->id, $stations));
+				throw new \RuntimeException("GasBuddy has no posted {$type} price at any of stations {$stationIds}");
+			}
+		}
+
+		foreach ($prices as $type => $stationPrices) {
+			$price = round(array_sum($stationPrices) / count($stationPrices), 3);
 
 			FuelPrice::create([
 				"price" => $price,
